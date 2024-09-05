@@ -8,34 +8,35 @@ auths:
 modules:
   switch_cumulus:
     walk:
-      - 1.3.6.1.4.1.40310      # The main Cumulus MIB
-      - 1.3.6.1.6.3.10.3.1.1   # The SNMP Management Architecture MIB.
-      - 1.3.6.1.6.3.11.3.1.1   # The MIB for Message Processing and Dispatching.
-      - 1.3.6.1.6.3.15.2.1.1   # The management information definitions for the SNMP User-based Security Model.
-      - 1.3.6.1.6.3.1          # The MIB module for SNMPv2 entities
-      - 1.3.6.1.6.3.16.2.2.1   # View-based Access Control Model for SNMP.
-      - 1.3.6.1.2.1.49         # The MIB module for managing TCP implementations
-      - 1.3.6.1.2.1.4          # The MIB module for managing IP and ICMP implementations
-      - 1.3.6.1.2.1.50         # The MIB module for managing UDP implementations
-      - 1.3.6.1.6.3.13.3.1.3   # The MIB modules for managing SNMP Notification, plus filtering.
-      - 1.3.6.1.2.1.92         # The MIB module for logging SNMP Notifications.
+      - 1.3.6.1.4.1.40310         # The main Cumulus MIB
+      - 1.3.6.1.6.3.10.3.1.1      # The SNMP Management Architecture MIB.
+      - 1.3.6.1.6.3.11.3.1.1      # The MIB for Message Processing and Dispatching.
+      - 1.3.6.1.6.3.15.2.1.1      # The management information definitions for the SNMP User-based Security Model.
+      - 1.3.6.1.6.3.1             # The MIB module for SNMPv2 entities
+      - 1.3.6.1.6.3.16.2.2.1      # View-based Access Control Model for SNMP.
+      - 1.3.6.1.2.1.49            # The MIB module for managing TCP implementations
+      - 1.3.6.1.2.1.4             # The MIB module for managing IP and ICMP implementations
+      - 1.3.6.1.2.1.50            # The MIB module for managing UDP implementations
+      - 1.3.6.1.6.3.13.3.1.3      # The MIB modules for managing SNMP Notification, plus filtering.
+      - 1.3.6.1.2.1.92            # The MIB module for logging SNMP Notifications.
   # Lenovo PDU metrics
   pdu_lenovo_46m4004:
     walk:
-      - 1.3.6.1.2.1.1
-      - 1.3.6.1.2.1.2
-      - 1.3.6.1.2.1.4
-      - 1.3.6.1.2.1.5
-      - 1.3.6.1.2.1.6
-      - 1.3.6.1.2.1.7
-      - 1.3.6.1.2.1.11
-      - 1.3.6.1.4.1.2.6.223
+      - 1.3.6.1.2.1.1             # iso.org.dod.internet.mgmt.mib-2.system
+      - 1.3.6.1.2.1.2             # iso.org.dod.internet.mgmt.mib-2.interface
+      - 1.3.6.1.2.1.4             # iso.org.dod.internet.mgmt.mib-2.ip
+      - 1.3.6.1.2.1.5             # iso.org.dod.internet.mgmt.mib-2.icmp
+      - 1.3.6.1.2.1.6             # iso.org.dod.internet.mgmt.mib-2.tcp
+      - 1.3.6.1.2.1.7             # iso.org.dod.internet.mgmt.mib-2.udp
+      - 1.3.6.1.2.1.11            # iso.org.dod.internet.mgmt.mib-2.snmp
+      - 1.3.6.1.4.1.2.6.223       # IBM PDU MIB
   # Geist PDU metrics
   pdu_geist_imd3:
     walk:
-      - 1.3.6.1.4.1.21239.5.2.3
-      - 1.3.6.1.2.1.1
-      - 1.3.6.1.4.1.21239.5.2.1
+      - 1.3.6.1.2.1.1             # iso.org.dod.internet.mgmt.mib-2.system
+      - 1.3.6.1.2.1.2             # iso.org.dod.internet.mgmt.mib-2.interface
+      - 1.3.6.1.4.1.21239.5.2.1   # IMD Device info v5
+      - 1.3.6.1.4.1.21239.5.2.3   # IMD PDU stats v5
   # Default IF-MIB interfaces table with ifIndex.
   if_mib:
     walk: [sysUpTime, interfaces, ifXTable]
