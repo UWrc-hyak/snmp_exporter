@@ -37,6 +37,16 @@ modules:
       - 1.3.6.1.2.1.2             # iso.org.dod.internet.mgmt.mib-2.interface
       - 1.3.6.1.4.1.21239.5.2.1   # IMD Device info v5
       - 1.3.6.1.4.1.21239.5.2.3   # IMD PDU stats v5
+  # Enlogic PDU metrics
+  pdu_enlogic2_v5:
+    walk:
+      - 1.3.6.1.2.1.1             # iso.org.dod.internet.mgmt.mib-2.system
+      - 1.3.6.1.2.1.2             # iso.org.dod.internet.mgmt.mib-2.interface
+      - 1.3.6.1.2.1.4             # iso.org.dod.internet.mgmt.mib-2.ip
+      - 1.3.6.1.2.1.5             # iso.org.dod.internet.mgmt.mib-2.icmp
+      - 1.3.6.1.2.1.6             # iso.org.dod.internet.mgmt.mib-2.tcp
+      - 1.3.6.1.2.1.7             # iso.org.dod.internet.mgmt.mib-2.udp
+      - 1.3.6.1.2.1.11            # iso.org.dod.internet.mgmt.mib-2.snmp 
   # Default IF-MIB interfaces table with ifIndex.
   if_mib:
     walk: [sysUpTime, interfaces, ifXTable]
