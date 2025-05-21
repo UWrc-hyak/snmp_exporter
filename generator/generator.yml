@@ -48,6 +48,13 @@ modules:
       - 1.3.6.1.2.1.7             # iso.org.dod.internet.mgmt.mib-2.udp
       - 1.3.6.1.2.1.11            # iso.org.dod.internet.mgmt.mib-2.snmp
       - 1.3.6.1.4.1.38446.1.2.4.1 # Enlogic PDU power stats 
+  # SNMPv2-MIB for things like sysDescr, sysUpTime, etc.
+  system:
+    walk:
+      - "SNMPv2-MIB::system"
+    lookups:
+      - source_indexes: [sysORIndex]
+        lookup: "SNMPv2-MIB::sysORDescr"
   # Default IF-MIB interfaces table with ifIndex.
   if_mib:
     walk:
