@@ -18,7 +18,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/go-kit/log"
+	"github.com/prometheus/common/promslog"
 	"github.com/prometheus/snmp_exporter/config"
 	yaml "gopkg.in/yaml.v2"
 )
@@ -130,6 +130,11 @@ func TestTreePrepare(t *testing.T) {
 			in:  &Node{Oid: "1", Type: "DisplayString", TextualConvention: "DateAndTime"},
 			out: &Node{Oid: "1", Type: "DateAndTime", TextualConvention: "DateAndTime"},
 		},
+		// ParseDateAndTime
+		{
+			in:  &Node{Oid: "1", Type: "DisplayString", TextualConvention: "ParseDateAndTime"},
+			out: &Node{Oid: "1", Type: "ParseDateAndTime", TextualConvention: "ParseDateAndTime"},
+		},
 		// RFC 4100 InetAddress conventions.
 		{
 			in:  &Node{Oid: "1", Type: "OctectString", TextualConvention: "InetAddressIPv4"},
@@ -143,6 +148,11 @@ func TestTreePrepare(t *testing.T) {
 			in:  &Node{Oid: "1", Type: "OctectString", TextualConvention: "InetAddress"},
 			out: &Node{Oid: "1", Type: "InetAddress", TextualConvention: "InetAddress"},
 		},
+		// NTPTimeStamp
+		{
+			in:  &Node{Oid: "1", Type: "OctectString", TextualConvention: "NTPTimeStamp"},
+			out: &Node{Oid: "1", Type: "NTPTimeStamp", TextualConvention: "NTPTimeStamp"},
+		},
 	}
 	for i, c := range cases {
 		// Indexes always end up initialized.
@@ -152,7 +162,7 @@ func TestTreePrepare(t *testing.T) {
 			}
 		})
 
-		prepareTree(c.in, log.NewNopLogger())
+		prepareTree(c.in, promslog.NewNopLogger())
 
 		if !reflect.DeepEqual(c.in, c.out) {
 			t.Errorf("prepareTree: difference in case %d", i)
@@ -340,6 +350,8 @@ func TestGenerateConfigModule(t *testing.T) {
 					{Oid: "1.202", Access: "ACCESS_READONLY", Label: "DateAndTime", Type: "DisplayString", TextualConvention: "DateAndTime"},
 					{Oid: "1.203", Access: "ACCESS_READONLY", Label: "InetAddressIPv4", Type: "OCTETSTR", TextualConvention: "InetAddressIPv4"},
 					{Oid: "1.204", Access: "ACCESS_READONLY", Label: "InetAddressIPv6", Type: "OCTETSTR", TextualConvention: "InetAddressIPv6"},
+					{Oid: "1.205", Access: "ACCESS_READONLY", Label: "ParseDateAndTime", Type: "DisplayString", TextualConvention: "ParseDateAndTime"},
+					{Oid: "1.206", Access: "ACCESS_READONLY", Label: "NTPTimeStamp", Type: "NTPTimeStamp", TextualConvention: "NTPTimeStamp"},
 				}},
 			cfg: &ModuleConfig{
 				Walk: []string{"root", "1.3"},
@@ -460,6 +472,18 @@ func TestGenerateConfigModule(t *testing.T) {
 						Oid:  "1.204",
 						Type: "InetAddressIPv6",
 						Help: " - 1.204",
+					},
+					{
+						Name: "ParseDateAndTime",
+						Oid:  "1.205",
+						Type: "ParseDateAndTime",
+						Help: " - 1.205",
+					},
+					{
+						Name: "NTPTimeStamp",
+						Oid:  "1.206",
+						Type: "NTPTimeStamp",
+						Help: " - 1.206",
 					},
 				},
 			},
@@ -2009,8 +2033,8 @@ func TestGenerateConfigModule(t *testing.T) {
 			}
 		}
 
-		nameToNode := prepareTree(c.node, log.NewNopLogger())
-		got, err := generateConfigModule(c.cfg, c.node, nameToNode, log.NewNopLogger())
+		nameToNode := prepareTree(c.node, promslog.NewNopLogger())
+		got, err := generateConfigModule(c.cfg, c.node, nameToNode, promslog.NewNopLogger())
 		if err != nil {
 			t.Errorf("Error generating config in case %d: %s", i, err)
 		}
