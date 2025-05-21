@@ -47,7 +47,7 @@ modules:
       - 1.3.6.1.2.1.6             # iso.org.dod.internet.mgmt.mib-2.tcp
       - 1.3.6.1.2.1.7             # iso.org.dod.internet.mgmt.mib-2.udp
       - 1.3.6.1.2.1.11            # iso.org.dod.internet.mgmt.mib-2.snmp
-      - 1.3.6.1.4.1.38446         # Main Enlogic MIB 
+      - 1.3.6.1.4.1.38446.1.2.4.1 # Enlogic PDU power stats 
   # Default IF-MIB interfaces table with ifIndex.
   if_mib:
     walk:
