@@ -13,7 +13,7 @@ unencrypted in SNMP v1 and v2c. For secure access, SNMP v3 is required.
 # Concepts
 
 While SNMP uses a hierarchical data structure and Prometheus uses an
-n-dimensional matrix, the two systems map perfectly, and without the need
+n-dimnensional matrix, the two systems map perfectly, and without the need
 to walk through data by hand. `snmp_exporter` maps the data for you.
 
 ## Prometheus
@@ -113,17 +113,6 @@ http://localhost:9116/snmp?module=if_mib,arista_sw&target=192.0.0.8
 For multiple params_module:
 ```
 http://localhost:9116/snmp?module=if_mib&module=arista_sw&target=192.0.0.8
-```
-
-Prometheus Example:
-```YAML
-
-  - job_name: 'my'
-    params:
-      module: 
-        - if_mib
-        - synology
-        - ucd_la_table
 ```
 
 ## Configuration

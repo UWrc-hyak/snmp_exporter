@@ -15,9 +15,8 @@ package main
 
 import (
 	"fmt"
-	"strconv"
-
 	"github.com/prometheus/snmp_exporter/config"
+	"strconv"
 )
 
 // The generator config.
@@ -28,14 +27,12 @@ type Config struct {
 }
 
 type MetricOverrides struct {
-	Ignore          bool                              `yaml:"ignore,omitempty"`
-	RegexpExtracts  map[string][]config.RegexpExtract `yaml:"regex_extracts,omitempty"`
-	DateTimePattern string                            `yaml:"datetime_pattern,omitempty"`
-	Offset          float64                           `yaml:"offset,omitempty"`
-	Scale           float64                           `yaml:"scale,omitempty"`
-	Type            string                            `yaml:"type,omitempty"`
-	Help            string                            `yaml:"help,omitempty"`
-	Name            string                            `yaml:"name,omitempty"`
+	Ignore         bool                              `yaml:"ignore,omitempty"`
+	RegexpExtracts map[string][]config.RegexpExtract `yaml:"regex_extracts,omitempty"`
+	Offset         float64                           `yaml:"offset,omitempty"`
+	Scale          float64                           `yaml:"scale,omitempty"`
+	Type           string                            `yaml:"type,omitempty"`
+	Help           string                            `yaml:"help,omitempty"`
 }
 
 // UnmarshalYAML implements the yaml.Unmarshaler interface.

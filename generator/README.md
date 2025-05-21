@@ -109,11 +109,9 @@ auths:
 
 modules:
   module_name:  # The module name. You can have as many modules as you want.
-    # List of OIDs to walk. Can also be SNMP object names or specific instances.
-    # Object names can be fully-qualified with the MIB name separated by `::`.
-    walk:
+    walk:       # List of OIDs to walk. Can also be SNMP object names or specific instances.
       - 1.3.6.1.2.1.2              # Same as "interfaces"
-      - "SNMPv2-MIB::sysUpTime"    # Same as "1.3.6.1.2.1.1.3"
+      - sysUpTime                  # Same as "1.3.6.1.2.1.1.3"
       - 1.3.6.1.2.1.31.1.1.1.6.40  # Instance of "ifHCInOctets" with index "40"
       - 1.3.6.1.2.1.2.2.1.4        # Same as ifMtu (used for filter example)
       - bsnDot11EssSsid            # Same as 1.3.6.1.4.1.14179.2.1.1.1.2 (used for filter example)
@@ -123,14 +121,6 @@ modules:
     retries: 3   # How many times to retry a failed request, defaults to 3.
     timeout: 5s  # Timeout for each individual SNMP request, defaults to 5s.
 
-    allow_nonincreasing_oids: false # Do not check whether the returned OIDs are increasing, defaults to false
-                                    # Some agents return OIDs out of order, but can complete the walk anyway.
-                                    # -Cc option of NetSNMP
-
-    use_unconnected_udp_socket: false # Use a unconnected udp socket, defaults to false
-                                      # Some multi-homed network gear isn't smart enough to send SNMP responses
-                                      # from the address it received the requests on. To work around that,
-                                      # we can open unconnected UDP socket and use sendto/recvfrom
 
     lookups:  # Optional list of lookups to perform.
               # The default for `keep_source_indexes` is false. Indexes must be unique for this option to be used.
@@ -159,7 +149,6 @@ modules:
       metricName:
         ignore: true # Drops the metric from the output.
         help: "string" # Override the generated HELP text provided by the MIB Description.
-        name: "string" # Override the OID name provided in the MIB Description.
         regex_extracts:
           Temp: # A new metric will be created appending this to the metricName to become metricNameTemp.
             - regex: '(.*)' # Regex to extract a value from the returned SNMP walks's value.
@@ -169,7 +158,6 @@ modules:
               value: '1' # The first entry whose regex matches and whose value parses wins.
             - regex: '.*'
               value: '0'
-        datetime_pattern: # Used if type = ParseDateAndTime. Uses the strptime format (See: man 3 strptime)
         offset: 1.0 # Add the value to the same. Applied after scale.
         scale: 1.0 # Scale the value of the sample by this value.
         type: DisplayString # Override the metric type, possible types are:
@@ -177,8 +165,6 @@ modules:
                              #   counter: An integer with type counter.
                              #   OctetString: A bit string, rendered as 0xff34.
                              #   DateAndTime: An RFC 2579 DateAndTime byte sequence. If the device has no time zone data, UTC is used.
-                             #   ParseDateAndTime: Parse a DisplayString and return the timestamp. See datetime_pattern config option
-                             #   NTPTimeStamp: Parse the NTP timestamp (RFC-1305, March 1992, Section 3.1) and return Unix timestamp as float.
                              #   DisplayString: An ASCII or UTF-8 string.
                              #   PhysAddress48: A 48 bit MAC address, rendered as 00:01:02:03:04:ff.
                              #   Float: A 32 bit floating-point value with type gauge.

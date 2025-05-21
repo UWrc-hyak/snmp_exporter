@@ -15,15 +15,16 @@ package main
 
 import (
 	"fmt"
-	"log/slog"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/prometheus/common/promslog"
-	"github.com/prometheus/common/promslog/flag"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
+	"github.com/prometheus/common/promlog"
+	"github.com/prometheus/common/promlog/flag"
 	"gopkg.in/yaml.v2"
 
 	"github.com/prometheus/snmp_exporter/config"
@@ -34,7 +35,7 @@ var (
 )
 
 // Generate a snmp_exporter config and write it out.
-func generateConfig(nodes *Node, nameToNode map[string]*Node, logger *slog.Logger) error {
+func generateConfig(nodes *Node, nameToNode map[string]*Node, logger log.Logger) error {
 	outputPath, err := filepath.Abs(*outputPath)
 	if err != nil {
 		return fmt.Errorf("unable to determine absolute path for output")
@@ -54,7 +55,7 @@ func generateConfig(nodes *Node, nameToNode map[string]*Node, logger *slog.Logge
 	outputConfig.Auths = cfg.Auths
 	outputConfig.Modules = make(map[string]*config.Module, len(cfg.Modules))
 	for name, m := range cfg.Modules {
-		logger.Info("Generating config for module", "module", name)
+		level.Info(logger).Log("msg", "Generating config for module", "module", name)
 		// Give each module a copy of the tree so that it can be modified.
 		mNodes := nodes.Copy()
 		// Build the map with new pointers.
@@ -62,9 +63,6 @@ func generateConfig(nodes *Node, nameToNode map[string]*Node, logger *slog.Logge
 		walkNode(mNodes, func(n *Node) {
 			mNameToNode[n.Oid] = n
 			mNameToNode[n.Label] = n
-			if n.Module != "" {
-				mNameToNode[n.Module+"::"+n.Label] = n
-			}
 		})
 		out, err := generateConfigModule(m, mNodes, mNameToNode, logger)
 		if err != nil {
@@ -72,7 +70,7 @@ func generateConfig(nodes *Node, nameToNode map[string]*Node, logger *slog.Logge
 		}
 		outputConfig.Modules[name] = out
 		outputConfig.Modules[name].WalkParams = m.WalkParams
-		logger.Info("Generated metrics", "module", name, "metrics", len(outputConfig.Modules[name].Metrics))
+		level.Info(logger).Log("msg", "Generated metrics", "module", name, "metrics", len(outputConfig.Modules[name].Metrics))
 	}
 
 	config.DoNotHideSecrets = true
@@ -97,7 +95,7 @@ func generateConfig(nodes *Node, nameToNode map[string]*Node, logger *slog.Logge
 	if err != nil {
 		return fmt.Errorf("error writing to output file: %s", err)
 	}
-	logger.Info("Config written", "file", outputPath)
+	level.Info(logger).Log("msg", "Config written", "file", outputPath)
 	return nil
 }
 
@@ -113,15 +111,15 @@ var (
 )
 
 func main() {
-	promslogConfig := &promslog.Config{}
-	flag.AddFlags(kingpin.CommandLine, promslogConfig)
+	promlogConfig := &promlog.Config{}
+	flag.AddFlags(kingpin.CommandLine, promlogConfig)
 	kingpin.HelpFlag.Short('h')
 	command := kingpin.Parse()
-	logger := promslog.New(promslogConfig)
+	logger := promlog.New(promlogConfig)
 
 	output, err := initSNMP(logger)
 	if err != nil {
-		logger.Error("Error initializing netsnmp", "err", err)
+		level.Error(logger).Log("msg", "Error initializing netsnmp", "err", err)
 		os.Exit(1)
 	}
 
@@ -134,11 +132,11 @@ func main() {
 	switch command {
 	case generateCommand.FullCommand():
 		if *failOnParseErrors && parseErrors > 0 {
-			logger.Error("Failing on reported parse error(s)", "help", "Use 'generator parse_errors' command to see errors, --no-fail-on-parse-errors to ignore")
+			level.Error(logger).Log("msg", "Failing on reported parse error(s)", "help", "Use 'generator parse_errors' command to see errors, --no-fail-on-parse-errors to ignore")
 		} else {
 			err := generateConfig(nodes, nameToNode, logger)
 			if err != nil {
-				logger.Error("Error generating config netsnmp", "err", err)
+				level.Error(logger).Log("msg", "Error generating config netsnmp", "err", err)
 				os.Exit(1)
 			}
 		}
@@ -146,7 +144,7 @@ func main() {
 		if parseErrors > 0 {
 			fmt.Printf("%s\n", strings.Join(parseOutput, "\n"))
 		} else {
-			logger.Info("No parse errors")
+			level.Info(logger).Log("msg", "No parse errors")
 		}
 	case dumpCommand.FullCommand():
 		walkNode(nodes, func(n *Node) {
@@ -167,7 +165,7 @@ func main() {
 	}
 }
 
-func scanParseOutput(logger *slog.Logger, output string) []string {
+func scanParseOutput(logger log.Logger, output string) []string {
 	var parseOutput []string
 	output = strings.TrimSpace(strings.ToValidUTF8(output, "�"))
 	if len(output) > 0 {
@@ -176,13 +174,13 @@ func scanParseOutput(logger *slog.Logger, output string) []string {
 	parseErrors := len(parseOutput)
 
 	if parseErrors > 0 {
-		logger.Warn("NetSNMP reported parse error(s)", "errors", parseErrors)
+		level.Warn(logger).Log("msg", "NetSNMP reported parse error(s)", "errors", parseErrors)
 	}
 
 	for _, line := range parseOutput {
 		if strings.HasPrefix(line, "Cannot find module") {
 			missing := cannotFindModuleRE.FindStringSubmatch(line)
-			logger.Error("Missing MIB", "mib", missing[1], "from", missing[2])
+			level.Error(logger).Log("msg", "Missing MIB", "mib", missing[1], "from", missing[2])
 		}
 	}
 	return parseOutput

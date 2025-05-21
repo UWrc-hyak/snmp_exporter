@@ -16,21 +16,23 @@ package scraper
 import (
 	"context"
 	"fmt"
-	"log/slog"
+	stdlog "log"
 	"net"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/gosnmp/gosnmp"
 )
 
 type GoSNMPWrapper struct {
 	c      *gosnmp.GoSNMP
-	logger *slog.Logger
+	logger log.Logger
 }
 
-func NewGoSNMP(logger *slog.Logger, target, srcAddress string, debug bool) (*GoSNMPWrapper, error) {
+func NewGoSNMP(logger log.Logger, target, srcAddress string, debug bool) (*GoSNMPWrapper, error) {
 	transport := "udp"
 	if s := strings.SplitN(target, "://", 2); len(s) == 2 {
 		transport = s[0]
@@ -52,7 +54,7 @@ func NewGoSNMP(logger *slog.Logger, target, srcAddress string, debug bool) (*GoS
 		LocalAddr: srcAddress,
 	}
 	if debug {
-		g.Logger = gosnmp.NewLogger(slog.NewLogLogger(logger.Handler(), slog.LevelDebug))
+		g.Logger = gosnmp.NewLogger(stdlog.New(log.NewStdlibAdapter(level.Debug(logger)), "", 0))
 	}
 	return &GoSNMPWrapper{c: g, logger: logger}, nil
 }
@@ -81,7 +83,7 @@ func (g *GoSNMPWrapper) Close() error {
 }
 
 func (g *GoSNMPWrapper) Get(oids []string) (results *gosnmp.SnmpPacket, err error) {
-	g.logger.Debug("Getting OIDs", "oids", oids)
+	level.Debug(g.logger).Log("msg", "Getting OIDs", "oids", oids)
 	st := time.Now()
 	results, err = g.c.Get(oids)
 	if err != nil {
@@ -93,12 +95,12 @@ func (g *GoSNMPWrapper) Get(oids []string) (results *gosnmp.SnmpPacket, err erro
 		}
 		return
 	}
-	g.logger.Debug("Get of OIDs completed", "oids", oids, "duration_seconds", time.Since(st))
+	level.Debug(g.logger).Log("msg", "Get of OIDs completed", "oids", oids, "duration_seconds", time.Since(st))
 	return
 }
 
 func (g *GoSNMPWrapper) WalkAll(oid string) (results []gosnmp.SnmpPDU, err error) {
-	g.logger.Debug("Walking subtree", "oid", oid)
+	level.Debug(g.logger).Log("msg", "Walking subtree", "oid", oid)
 	st := time.Now()
 	if g.c.Version == gosnmp.Version1 {
 		results, err = g.c.WalkAll(oid)
@@ -114,6 +116,6 @@ func (g *GoSNMPWrapper) WalkAll(oid string) (results []gosnmp.SnmpPDU, err error
 		}
 		return
 	}
-	g.logger.Debug("Walk of subtree completed", "oid", oid, "duration_seconds", time.Since(st))
+	level.Debug(g.logger).Log("msg", "Walk of subtree completed", "oid", oid, "duration_seconds", time.Since(st))
 	return
 }
